@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Space - Your Mental Sanctuary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg"></div>
+    <div class="breathing-orb"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header with Breathing Indicator -->
+        <header class="main-header">
+            <div class="logo">
+                <span class="logo-icon">◯</span>
+                <span class="logo-text">Mind Space</span>
+            </div>
+            <nav class="controls">
+                <button class="control-btn" id="breathingToggle" aria-label="Toggle breathing guide">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+                    </svg>
+                </button>
+                <button class="control-btn" id="sensoryToggle" aria-label="Sensory settings">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0l-1.414-1.414M7.05 7.05L5.636 5.636" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Quick Dump Section -->
+        <section class="quick-dump">
+            <div class="dump-header">
+                <h1>What's on your mind?</h1>
+                <p class="subtitle">No structure needed. Just let it flow.</p>
+            </div>
+
+            <div class="dump-area">
+                <textarea
+                    id="thoughtDump"
+                    class="thought-input"
+                    placeholder="Type, speak, or paste anything... This space is yours."
+                    aria-label="Mental dump input area"></textarea>
+
+                <div class="input-helpers">
+                    <button class="helper-btn voice-btn" id="voiceInput" aria-label="Voice input">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 1v10m0 0c-2.21 0-4-1.79-4-4V4c0-2.21 1.79-4 4-4s4 1.79 4 4v3c0 2.21-1.79 4-4 4z" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M5 10v1c0 3.87 3.13 7 7 7s7-3.13 7-7v-1" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M12 18v5" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                    <div class="word-count" id="wordCount">0 words</div>
+                </div>
+            </div>
+
+            <button class="release-btn" id="releaseBtn">
+                <span class="btn-text">Release & Organize</span>
+                <span class="btn-icon">→</span>
+            </button>
+        </section>
+
+        <!-- Thought Organization Area -->
+        <section class="thoughts-organized" id="organizedSection" style="display: none;">
+            <h2>Your thoughts, gently sorted</h2>
+            <div class="thought-categories">
+                <div class="category-card worries">
+                    <div class="category-header">
+                        <span class="category-icon">☁</span>
+                        <h3>Worries & Concerns</h3>
+                    </div>
+                    <div class="thought-items" id="worriesItems"></div>
+                </div>
+
+                <div class="category-card tasks">
+                    <div class="category-header">
+                        <span class="category-icon">✦</span>
+                        <h3>Things to Do</h3>
+                    </div>
+                    <div class="thought-items" id="tasksItems"></div>
+                </div>
+
+                <div class="category-card ideas">
+                    <div class="category-header">
+                        <span class="category-icon">✺</span>
+                        <h3>Ideas & Dreams</h3>
+                    </div>
+                    <div class="thought-items" id="ideasItems"></div>
+                </div>
+
+                <div class="category-card feelings">
+                    <div class="category-header">
+                        <span class="category-icon">♡</span>
+                        <h3>Feelings & Emotions</h3>
+                    </div>
+                    <div class="thought-items" id="feelingsItems"></div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="secondary-btn" id="saveBtn">Save for Later</button>
+                <button class="secondary-btn" id="clearBtn">Clear & Start Fresh</button>
+            </div>
+        </section>
+
+        <!-- Breathing Guide Overlay -->
+        <div class="breathing-guide" id="breathingGuide" style="display: none;">
+            <div class="breathing-circle"></div>
+            <div class="breathing-text">Breathe In</div>
+        </div>
+
+        <!-- Sensory Settings Panel -->
+        <div class="sensory-panel" id="sensoryPanel" style="display: none;">
+            <h3>Comfort Settings</h3>
+            <div class="setting-group">
+                <label for="colorMode">Color Intensity</label>
+                <input type="range" id="colorMode" min="0" max="100" value="50">
+            </div>
+            <div class="setting-group">
+                <label for="fontSize">Text Size</label>
+                <input type="range" id="fontSize" min="12" max="24" value="16">
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
