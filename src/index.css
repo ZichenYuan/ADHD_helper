@@ -1,0 +1,76 @@
+:root {
+  /* Enriched Palette — soft watercolor garden */
+  --cream: #FBF8F3;
+  --cream-warm: #F7F1E8;
+  --sand: #F0E8DA;
+  --sand-deep: #E6DCCB;
+
+  /* Colorful accents */
+  --coral: #E8927C;
+  --coral-soft: #F2B5A5;
+  --coral-glow: rgba(232, 146, 124, 0.2);
+  --lavender: #B8A9D4;
+  --lavender-soft: #D4CCE8;
+  --lavender-glow: rgba(184, 169, 212, 0.2);
+  --sage: #8DB48E;
+  --sage-deep: #6E9A6F;
+  --sage-soft: #B5D1B6;
+  --sage-glow: rgba(141, 180, 142, 0.2);
+  --peach: #F5C8A8;
+  --peach-soft: #FAE0CC;
+  --sky: #9DC4D8;
+  --sky-soft: #C2DDE8;
+  --marigold: #E8C86A;
+  --marigold-soft: #F2DFA0;
+  --rose: #D4889E;
+  --rose-soft: #E8B4C4;
+
+  /* Neutrals */
+  --bark: #5E5048;
+  --bark-deep: #3D332C;
+  --stone: #8E857E;
+  --stone-light: #B0A89F;
+
+  /* Fuel gauge — vivid but soft gradient */
+  --fuel-1: #E8927C;
+  --fuel-2: #F5C8A8;
+  --fuel-3: #E8C86A;
+  --fuel-4: #8DB48E;
+  --fuel-5: #6E9A6F;
+
+  /* Typography */
+  --font-display: 'Fraunces', serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--cream);
+  color: var(--bark-deep);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100dvh;
+}
