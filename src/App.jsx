@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import BackgroundBlobs from './components/BackgroundBlobs'
+import BreatheOverlay from './components/BreatheOverlay'
 import FuelGauge from './components/FuelGauge'
 import LanguageSelector from './components/LanguageSelector'
 import PulseButton from './components/PulseButton'
@@ -12,6 +13,7 @@ function App() {
   const [fuelLevel, setFuelLevel] = useState(null)
   const [language, setLanguage] = useState('en')
   const [categories, setCategories] = useState(null)
+  const [showBreathe, setShowBreathe] = useState(false)
 
   const {
     isConnected,
@@ -38,8 +40,7 @@ function App() {
           break
 
         case 'stress_reset':
-          // TODO: trigger breathe animation component (Phase 1 Step 3)
-          console.log('[App] Stress reset triggered')
+          setShowBreathe(true)
           break
 
         case 'task_steps':
@@ -75,6 +76,7 @@ function App() {
 
   return (
     <div className={`app ${isConnected ? 'app--session' : ''}`}>
+      {showBreathe && <BreatheOverlay onClose={() => setShowBreathe(false)} />}
       <BackgroundBlobs />
       <LanguageSelector value={language} onChange={setLanguage} disabled={isConnected} />
 

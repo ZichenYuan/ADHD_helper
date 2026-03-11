@@ -83,7 +83,7 @@ def break_down_task(task: str) -> str:
     })
 
 
-def activate_stress_reset() -> str:
+def activate_stress_reset(reason: str) -> str:
     """Trigger a calming breathe animation on the user's screen.
 
     Call this when you detect stress markers: the user sounds rushed, overwhelmed,
@@ -93,9 +93,15 @@ def activate_stress_reset() -> str:
     After calling this, shift to an extra-calm, slow, spacious speaking style.
     Use short sentences. Give them room to breathe.
 
+    Args:
+        reason: Brief description of why the stress reset was triggered
+                (e.g. "user sounds overwhelmed", "rapid speech detected",
+                "user said they're panicking").
+
     Returns:
         Confirmation that the stress reset was activated.
     """
     return json.dumps({
         "_tool_event": "stress_reset",
+        "reason": reason,
     })

@@ -1187,3 +1187,226 @@
     gap: var(--space-md);
   }
 }
+
+/* ===== Breathe Overlay ===== */
+.breathe-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: breatheOverlayIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.breathe-overlay--exit {
+  animation: breatheOverlayOut 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes breatheOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes breatheOverlayOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Soft, calming background */
+.breathe-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 40%, rgba(212, 204, 232, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 30% 70%, rgba(181, 209, 182, 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 75% 25%, rgba(194, 221, 232, 0.2) 0%, transparent 50%),
+    var(--cream);
+  z-index: -1;
+}
+
+/* Center content */
+.breathe-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+/* ===== Breathing Circle ===== */
+.breathe-circle {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.breathe-circle__inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 35%,
+    rgba(212, 204, 232, 0.6) 0%,
+    rgba(181, 209, 182, 0.4) 40%,
+    rgba(194, 221, 232, 0.3) 70%,
+    rgba(242, 223, 160, 0.2) 100%
+  );
+  border: 2px solid rgba(184, 169, 212, 0.3);
+  transition: transform var(--phase-duration) cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow var(--phase-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.breathe-circle__glow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(184, 169, 212, 0.15) 0%,
+    rgba(181, 209, 182, 0.1) 40%,
+    transparent 70%
+  );
+  transition: opacity var(--phase-duration) cubic-bezier(0.4, 0, 0.2, 1),
+              transform var(--phase-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* Expand — breathe in */
+.breathe-circle--expand .breathe-circle__inner {
+  transform: scale(1.6);
+  box-shadow:
+    0 0 40px rgba(184, 169, 212, 0.2),
+    0 0 80px rgba(181, 209, 182, 0.1);
+}
+
+.breathe-circle--expand .breathe-circle__glow {
+  transform: scale(1.8);
+  opacity: 1;
+}
+
+/* Hold big */
+.breathe-circle--hold-big .breathe-circle__inner {
+  transform: scale(1.6);
+  box-shadow:
+    0 0 40px rgba(184, 169, 212, 0.2),
+    0 0 80px rgba(181, 209, 182, 0.1);
+}
+
+.breathe-circle--hold-big .breathe-circle__glow {
+  transform: scale(1.8);
+  opacity: 0.8;
+}
+
+/* Contract — breathe out */
+.breathe-circle--contract .breathe-circle__inner {
+  transform: scale(1);
+  box-shadow: 0 0 20px rgba(184, 169, 212, 0.1);
+}
+
+.breathe-circle--contract .breathe-circle__glow {
+  transform: scale(1);
+  opacity: 0.3;
+}
+
+/* Hold small / rest */
+.breathe-circle--hold-small .breathe-circle__inner {
+  transform: scale(1);
+  box-shadow: 0 0 20px rgba(184, 169, 212, 0.1);
+}
+
+.breathe-circle--hold-small .breathe-circle__glow {
+  transform: scale(1);
+  opacity: 0.2;
+}
+
+/* ===== Phase Label ===== */
+.breathe-label {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 350;
+  font-style: italic;
+  color: var(--bark);
+  letter-spacing: 0.04em;
+  animation: breatheLabelIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  text-align: center;
+  min-height: 2em;
+}
+
+@keyframes breatheLabelIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Cycle Progress Dots ===== */
+.breathe-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.breathe-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sand-deep);
+  transition: all 0.4s ease;
+}
+
+.breathe-dot--active {
+  background: var(--lavender);
+  box-shadow: 0 0 8px var(--lavender-glow);
+  transform: scale(1.2);
+}
+
+.breathe-dot--done {
+  background: var(--sage);
+}
+
+/* ===== Timer ===== */
+.breathe-timer {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--stone);
+  letter-spacing: 0.05em;
+}
+
+/* ===== Exit Button ===== */
+.breathe-exit {
+  position: fixed;
+  bottom: max(var(--space-xl), env(safe-area-inset-bottom, 20px));
+  padding: 14px 32px;
+  border: none;
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  color: var(--bark);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(93, 78, 67, 0.06);
+  animation: breatheExitIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 2s both;
+}
+
+.breathe-exit:hover {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 6px 24px rgba(93, 78, 67, 0.1);
+  transform: translateY(-1px);
+}
+
+.breathe-exit:active {
+  transform: scale(0.97);
+}
+
+@keyframes breatheExitIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
