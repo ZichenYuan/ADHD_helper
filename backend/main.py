@@ -5,6 +5,8 @@ import json
 import os
 from pathlib import Path
 
+import firebase_admin
+from firebase_admin import auth as firebase_auth, credentials
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +24,20 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 api_key = os.getenv("VITE_GOOGLE_API_KEY") or os.getenv("GOOGLE_API_KEY")
 if api_key:
     os.environ["GOOGLE_API_KEY"] = api_key
+
+# Initialize Firebase Admin SDK (optional — runs without auth if not configured)
+_firebase_ready = False
+_service_account_path = Path(__file__).parent.parent / "service-account-key.json"
+try:
+    if _service_account_path.exists():
+        cred = credentials.Certificate(str(_service_account_path))
+        firebase_admin.initialize_app(cred)
+    else:
+        firebase_admin.initialize_app()
+    _firebase_ready = True
+    print("[firebase] Admin SDK initialized")
+except Exception as e:
+    print(f"[firebase] Admin SDK not available ({e}). Auth verification disabled.")
 
 # FastAPI app
 app = FastAPI(title="Brain Dump Backend")
@@ -175,6 +191,23 @@ async def websocket_endpoint(websocket: WebSocket):
                 msg_type = msg.get("type")
 
                 if msg_type == "start":
+                    # Verify Firebase ID token (if Firebase is configured)
+                    token = msg.get("token")
+                    uid = "anonymous"
+                    if token and _firebase_ready:
+                        try:
+                            decoded = firebase_auth.verify_id_token(token)
+                            uid = decoded["uid"]
+                            print(f"[websocket] Authenticated user: {uid}")
+                        except Exception as e:
+                            print(f"[websocket] Token verification failed: {e}")
+                            await websocket.send_json({"type": "error", "message": "auth_failed"})
+                            continue
+                    elif not _firebase_ready:
+                        print("[websocket] Firebase not configured, using anonymous")
+                    else:
+                        print("[websocket] No token provided, using anonymous")
+
                     fuel_level = msg.get("fuel_level")
                     language = msg.get("language", "en")
 
@@ -191,7 +224,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     session = await session_service.create_session(
                         app_name="brain_dump",
-                        user_id="anonymous",
+                        user_id=uid,
                     )
 
                     # ADK run config — mirrors the hard-won settings from useGeminiLive.js

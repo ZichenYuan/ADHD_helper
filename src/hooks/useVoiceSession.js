@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 
 /*
  * ==========================================================================
@@ -79,6 +80,7 @@ function cleanTranscript(text, filter) {
  *   - onToolEvent  — register callback for tool events (categorize, stress_reset, etc.)
  */
 export default function useVoiceSession(language = 'en') {
+  const { getIdToken } = useAuth()
   const [isConnected, setIsConnected] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [messages, setMessages] = useState([])
@@ -284,12 +286,17 @@ export default function useVoiceSession(language = 'en') {
           reject(new Error('Backend connection timed out (10s).'))
         }, 10000)
 
-        ws.onopen = () => {
-          // Send start message with session config
+        ws.onopen = async () => {
+          // Send start message with session config + auth token
+          let token = null
+          try {
+            token = await getIdToken()
+          } catch (_) { /* anonymous fallback */ }
           ws.send(JSON.stringify({
             type: 'start',
             fuel_level: fuelLevel,
             language: language,
+            token,
           }))
         }
 

@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import { LANGUAGES } from '../hooks/useVoiceSession'
 
 const langEntries = Object.entries(LANGUAGES)
 
-export default function LanguageSelector({ value, onChange, disabled }) {
+export default function LanguageSelector({ value, onChange, disabled, user }) {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef(null)
+  const { signOut } = useAuth()
 
   // Close on outside click
   useEffect(() => {
@@ -19,20 +21,21 @@ export default function LanguageSelector({ value, onChange, disabled }) {
   }, [])
 
   const currentLang = LANGUAGES[value] || LANGUAGES.en
+  const initial = user?.displayName?.[0] || user?.email?.[0] || '?'
 
   return (
     <div className="settings-corner" ref={ref}>
       <button
         className={`settings-trigger ${isOpen ? 'settings-trigger--open' : ''}`}
         onClick={() => setIsOpen(prev => !prev)}
-        aria-label="Language settings"
+        aria-label="Settings"
         disabled={disabled}
       >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <circle cx="9" cy="9" r="7.5" stroke="currentColor" strokeWidth="1.2" />
-          <ellipse cx="9" cy="9" rx="3.5" ry="7.5" stroke="currentColor" strokeWidth="1.2" />
-          <line x1="1.5" y1="9" x2="16.5" y2="9" stroke="currentColor" strokeWidth="1.2" />
-        </svg>
+        {user?.photoURL ? (
+          <img className="settings-avatar" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
+        ) : (
+          <span className="settings-avatar settings-avatar--initial">{initial}</span>
+        )}
         <span className="settings-trigger__lang">{currentLang.label}</span>
       </button>
 
@@ -47,6 +50,13 @@ export default function LanguageSelector({ value, onChange, disabled }) {
               {cfg.label}
             </button>
           ))}
+          <div className="settings-popover__divider" />
+          <button
+            className="settings-popover__item settings-popover__item--signout"
+            onClick={() => { signOut(); setIsOpen(false) }}
+          >
+            Sign out
+          </button>
         </div>
       )}
     </div>

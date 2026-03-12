@@ -1,8 +1,11 @@
 import { useState, useCallback, useEffect } from 'react'
+import { useAuth } from './contexts/AuthContext'
+import { isFirebaseConfigured } from './firebase'
 import BackgroundBlobs from './components/BackgroundBlobs'
 import BreatheOverlay from './components/BreatheOverlay'
 import FuelGauge from './components/FuelGauge'
 import LanguageSelector from './components/LanguageSelector'
+import LoginScreen from './components/LoginScreen'
 import PulseButton from './components/PulseButton'
 import ChatLog from './components/ChatLog'
 import BrainBoard from './components/BrainBoard'
@@ -10,6 +13,7 @@ import useVoiceSession from './hooks/useVoiceSession'
 import './App.css'
 
 function App() {
+  const { user, loading } = useAuth()
   const [fuelLevel, setFuelLevel] = useState(null)
   const [language, setLanguage] = useState('en')
   const [categories, setCategories] = useState(null)
@@ -64,7 +68,27 @@ function App() {
     }
   }, [isConnected, fuelLevel, start, stop])
 
-  // Keep a ref of messages so we can access them in the timeout
+  // Show loading spinner while checking auth state
+  if (loading) {
+    return (
+      <div className="app">
+        <BackgroundBlobs />
+        <div className="app-content" style={{ justifyContent: 'center', minHeight: '60vh' }}>
+          <p className="login-loading">loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show login screen when not authenticated (only if Firebase is configured)
+  if (!user && isFirebaseConfigured) {
+    return (
+      <div className="app">
+        <BackgroundBlobs />
+        <LoginScreen />
+      </div>
+    )
+  }
 
   const statusText = isConnected
     ? isListening
@@ -78,7 +102,7 @@ function App() {
     <div className={`app ${isConnected ? 'app--session' : ''}`}>
       {showBreathe && <BreatheOverlay onClose={() => setShowBreathe(false)} />}
       <BackgroundBlobs />
-      <LanguageSelector value={language} onChange={setLanguage} disabled={isConnected} />
+      <LanguageSelector value={language} onChange={setLanguage} disabled={isConnected} user={user} />
 
       <div className="app-content">
         <header className="header">
