@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import { isFirebaseConfigured } from './firebase'
+import useFirestoreItems, { ensureUserProfile, saveLastFuelLevel } from './hooks/useFirestoreItems'
 import BackgroundBlobs from './components/BackgroundBlobs'
 import BreatheOverlay from './components/BreatheOverlay'
 import FuelGauge from './components/FuelGauge'
@@ -9,6 +10,7 @@ import LoginScreen from './components/LoginScreen'
 import PulseButton from './components/PulseButton'
 import ChatLog from './components/ChatLog'
 import BrainBoard from './components/BrainBoard'
+import UndoToast from './components/UndoToast'
 import useVoiceSession from './hooks/useVoiceSession'
 import './App.css'
 
@@ -16,8 +18,20 @@ function App() {
   const { user, loading } = useAuth()
   const [fuelLevel, setFuelLevel] = useState(null)
   const [language, setLanguage] = useState('en')
-  const [categories, setCategories] = useState(null)
   const [showBreathe, setShowBreathe] = useState(false)
+  const [undoState, setUndoState] = useState(null) // { message, undoFn }
+
+  // Firestore-backed board items
+  const {
+    categories,
+    completedItems,
+    addItem,
+    completeItem,
+    deleteItem,
+    restoreItem,
+    reAddItem,
+    isLoading: itemsLoading,
+  } = useFirestoreItems(user?.uid)
 
   const {
     isConnected,
@@ -30,17 +44,24 @@ function App() {
     onToolEvent,
   } = useVoiceSession(language)
 
-  // Handle real-time tool events from the backend (replaces post-session categorization)
+  // Create profile doc on first sign-in
+  useEffect(() => {
+    if (!user) return
+    ensureUserProfile(user.uid, user)
+  }, [user])
+
+  // Persist last fuel level whenever it changes
+  useEffect(() => {
+    if (!user || fuelLevel == null) return
+    saveLastFuelLevel(user.uid, fuelLevel)
+  }, [user, fuelLevel])
+
+  // Handle real-time tool events from the backend
   useEffect(() => {
     onToolEvent((event) => {
       switch (event.type) {
         case 'categorize':
-          setCategories(prev => {
-            const base = prev || { tasks: [], ideas: [], thoughts: [], emotions: [] }
-            const key = event.category + 's' // "task" → "tasks"
-            if (!base[key]) return base
-            return { ...base, [key]: [...base[key], event.text] }
-          })
+          addItem(event.category, event.text)
           break
 
         case 'stress_reset':
@@ -48,17 +69,50 @@ function App() {
           break
 
         case 'task_steps':
-          // TODO: show micro-steps checklist component (Phase 1 Step 3)
           console.log('[App] Task steps:', event)
           break
 
         case 'suggestions':
-          // TODO: show energy-matched suggestions UI (Phase 1 Step 3)
           console.log('[App] Suggestions:', event)
           break
       }
     })
-  }, [onToolEvent])
+  }, [onToolEvent, addItem])
+
+  // ── Item action handlers ──
+
+  const handleComplete = useCallback(async (id) => {
+    await completeItem(id)
+    setUndoState({
+      message: 'Marked as done',
+      undoFn: () => restoreItem(id),
+    })
+  }, [completeItem, restoreItem])
+
+  const handleDelete = useCallback(async (id) => {
+    const data = await deleteItem(id)
+    if (data) {
+      setUndoState({
+        message: 'Removed',
+        undoFn: () => reAddItem(data.category, data.text),
+      })
+    }
+  }, [deleteItem, reAddItem])
+
+  const handleRestore = useCallback(async (id) => {
+    await restoreItem(id)
+  }, [restoreItem])
+
+  const handleUndo = useCallback(() => {
+    if (undoState?.undoFn) {
+      undoState.undoFn()
+    }
+    setUndoState(null)
+  }, [undoState])
+
+  const handleDismissUndo = useCallback(() => {
+    setUndoState(null)
+  }, [])
 
   const handleToggle = useCallback(() => {
     if (isConnected) {
@@ -131,9 +185,24 @@ function App() {
 
         <div className="app-panels">
           <ChatLog messages={messages} isActive={isConnected} />
-          <BrainBoard categories={categories} />
+          <BrainBoard
+            categories={categories}
+            completedItems={completedItems}
+            isLoading={itemsLoading}
+            onComplete={handleComplete}
+            onDelete={handleDelete}
+            onRestore={handleRestore}
+          />
         </div>
       </div>
+
+      {undoState && (
+        <UndoToast
+          message={undoState.message}
+          onUndo={handleUndo}
+          onDismiss={handleDismissUndo}
+        />
+      )}
     </div>
   )
 }

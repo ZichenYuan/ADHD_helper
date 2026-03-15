@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const CATEGORIES = [
   {
     key: 'tasks',
@@ -61,9 +63,47 @@ const CATEGORIES = [
   },
 ]
 
-export default function BrainBoard({ categories, isLoading }) {
+export default function BrainBoard({
+  categories,
+  completedItems,
+  isLoading,
+  onComplete,
+  onDelete,
+  onRestore,
+}) {
+  const [fadingOut, setFadingOut] = useState({}) // { [itemId]: true }
+  const [expandedCompleted, setExpandedCompleted] = useState({}) // { [catKey]: true }
+
   const hasAnyContent = categories &&
     Object.values(categories).some(arr => arr && arr.length > 0)
+
+  const handleComplete = (id) => {
+    setFadingOut(prev => ({ ...prev, [id]: true }))
+    setTimeout(() => {
+      onComplete?.(id)
+      setFadingOut(prev => {
+        const next = { ...prev }
+        delete next[id]
+        return next
+      })
+    }, 500)
+  }
+
+  const handleDelete = (id) => {
+    setFadingOut(prev => ({ ...prev, [id]: true }))
+    setTimeout(() => {
+      onDelete?.(id)
+      setFadingOut(prev => {
+        const next = { ...prev }
+        delete next[id]
+        return next
+      })
+    }, 500)
+  }
+
+  const toggleCompleted = (catKey) => {
+    setExpandedCompleted(prev => ({ ...prev, [catKey]: !prev[catKey] }))
+  }
 
   return (
     <div className="brain-board">
@@ -71,6 +111,9 @@ export default function BrainBoard({ categories, isLoading }) {
       <div className="brain-board__grid">
         {CATEGORIES.map((cat, idx) => {
           const items = categories?.[cat.key] || []
+          const completed = completedItems?.[cat.key] || []
+          const isExpanded = expandedCompleted[cat.key]
+
           return (
             <div
               key={cat.key}
@@ -102,16 +145,76 @@ export default function BrainBoard({ categories, isLoading }) {
                   </div>
                 ) : items.length > 0 ? (
                   <ul className="sticky-note__list">
-                    {items.map((item, i) => (
-                      <li key={i} className="sticky-note__item" style={{ animationDelay: `${(idx * 0.08) + (i * 0.06)}s` }}>
-                        {cat.key === 'tasks' && <span className="sticky-note__bullet sticky-note__bullet--checkbox" />}
-                        {cat.key !== 'tasks' && <span className="sticky-note__bullet">·</span>}
-                        {item}
-                      </li>
-                    ))}
+                    {items.map((item, i) => {
+                      const text = typeof item === 'string' ? item : item.text
+                      const id = typeof item === 'string' ? i : item.id
+                      const isFading = fadingOut[id]
+
+                      return (
+                        <li
+                          key={id}
+                          className={`sticky-note__item sticky-note__item--interactive ${isFading ? 'sticky-note__item--fade-out' : ''}`}
+                          style={{ animationDelay: `${(idx * 0.08) + (i * 0.06)}s` }}
+                        >
+                          {cat.key === 'tasks' ? (
+                            <button
+                              className="sticky-note__checkbox"
+                              onClick={() => handleComplete(id)}
+                              aria-label={`Complete: ${text}`}
+                            >
+                              <span className="sticky-note__checkbox-box" />
+                            </button>
+                          ) : (
+                            <span className="sticky-note__bullet">·</span>
+                          )}
+                          <span
+                            className="sticky-note__text"
+                            onClick={cat.key === 'tasks' ? () => handleComplete(id) : undefined}
+                          >
+                            {text}
+                          </span>
+                          <button
+                            className="sticky-note__delete"
+                            onClick={() => handleDelete(id)}
+                            aria-label={`Remove: ${text}`}
+                          >
+                            ×
+                          </button>
+                        </li>
+                      )
+                    })}
                   </ul>
                 ) : (
                   <p className="sticky-note__empty">{cat.emptyHint}</p>
+                )}
+
+                {/* Completed items toggle */}
+                {completed.length > 0 && (
+                  <div className="sticky-note__completed-section">
+                    <button
+                      className="sticky-note__completed-toggle"
+                      onClick={() => toggleCompleted(cat.key)}
+                    >
+                      {completed.length} completed {isExpanded ? '▾' : '▸'}
+                    </button>
+                    {isExpanded && (
+                      <ul className="sticky-note__list sticky-note__list--completed">
+                        {completed.map((item) => (
+                          <li key={item.id} className="sticky-note__item sticky-note__item--completed">
+                            <span className="sticky-note__bullet sticky-note__bullet--done">✓</span>
+                            <span className="sticky-note__text sticky-note__text--done">{item.text}</span>
+                            <button
+                              className="sticky-note__restore"
+                              onClick={() => onRestore?.(item.id)}
+                              aria-label={`Restore: ${item.text}`}
+                            >
+                              ↩
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

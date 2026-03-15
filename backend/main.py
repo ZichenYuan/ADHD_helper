@@ -28,14 +28,18 @@ if api_key:
 # Initialize Firebase Admin SDK (optional — runs without auth if not configured)
 _firebase_ready = False
 _service_account_path = Path(__file__).parent.parent / "service-account-key.json"
+_firebase_project_id = os.getenv("FIREBASE_PROJECT_ID") or os.getenv("VITE_FIREBASE_PROJECT_ID")
 try:
     if _service_account_path.exists():
         cred = credentials.Certificate(str(_service_account_path))
         firebase_admin.initialize_app(cred)
     else:
-        firebase_admin.initialize_app()
+        # Pass project ID explicitly so token verification targets the correct Firebase project
+        # rather than whatever project Application Default Credentials happen to be scoped to.
+        opts = {"projectId": _firebase_project_id} if _firebase_project_id else {}
+        firebase_admin.initialize_app(options=opts)
     _firebase_ready = True
-    print("[firebase] Admin SDK initialized")
+    print(f"[firebase] Admin SDK initialized (project: {_firebase_project_id or 'from credentials'})")
 except Exception as e:
     print(f"[firebase] Admin SDK not available ({e}). Auth verification disabled.")
 
