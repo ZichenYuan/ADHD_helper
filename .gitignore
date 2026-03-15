@@ -30,3 +30,4 @@ dist-ssr
 
 # Firebase service account key — never commit this
 service-account-key.json
+.worktrees
