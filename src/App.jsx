@@ -1,9 +1,11 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import { isFirebaseConfigured } from './firebase'
 import useFirestoreItems, { ensureUserProfile, saveLastFuelLevel } from './hooks/useFirestoreItems'
 import BackgroundBlobs from './components/BackgroundBlobs'
+import BlobBuddy from './components/BlobBuddy'
 import BreatheOverlay from './components/BreatheOverlay'
+import CollapsibleSidebar from './components/CollapsibleSidebar'
 import FuelGauge from './components/FuelGauge'
 import LanguageSelector from './components/LanguageSelector'
 import LoginScreen from './components/LoginScreen'
@@ -20,6 +22,7 @@ function App() {
   const [language, setLanguage] = useState('en')
   const [showBreathe, setShowBreathe] = useState(false)
   const [undoState, setUndoState] = useState(null) // { message, undoFn }
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Firestore-backed board items
   const {
@@ -43,6 +46,12 @@ function App() {
     clearMessages,
     onToolEvent,
   } = useVoiceSession(language)
+
+  // Total item count for sidebar badge
+  const totalItems = useMemo(() => {
+    if (!categories) return 0
+    return Object.values(categories).reduce((sum, arr) => sum + (arr?.length || 0), 0)
+  }, [categories])
 
   // Create profile doc on first sign-in
   useEffect(() => {
@@ -152,6 +161,9 @@ function App() {
       ? 'ready when you are'
       : 'set your energy to start'
 
+  // Determine if AI is "thinking" (connected but not listening = processing)
+  const isThinking = isConnected && !isListening
+
   return (
     <div className={`app ${isConnected ? 'app--session' : ''}`}>
       {showBreathe && <BreatheOverlay onClose={() => setShowBreathe(false)} />}
@@ -159,19 +171,6 @@ function App() {
       <LanguageSelector value={language} onChange={setLanguage} disabled={isConnected} user={user} />
 
       <div className="app-content">
-        <header className="header">
-          <h1 className="header__title">brain dump</h1>
-          <p className="header__subtitle">built by ADHD, for your ADHD brain</p>
-          <div className="header__accent">
-            <div className="header__accent-line" style={{ background: 'linear-gradient(90deg, transparent, #E8927C)' }} />
-            <div className="header__accent-dot" style={{ background: '#E8927C' }} />
-            <div className="header__accent-dot" style={{ background: '#B8A9D4' }} />
-            <div className="header__accent-dot" style={{ background: '#E8C86A' }} />
-            <div className="header__accent-dot" style={{ background: '#8DB48E' }} />
-            <div className="header__accent-line" style={{ background: 'linear-gradient(90deg, #8DB48E, transparent)' }} />
-          </div>
-        </header>
-
         <FuelGauge value={fuelLevel} onChange={setFuelLevel} />
 
         <PulseButton
@@ -183,18 +182,34 @@ function App() {
 
         {error && <div className="error-banner">{error}</div>}
 
-        <div className="app-panels">
-          <ChatLog messages={messages} isActive={isConnected} />
-          <BrainBoard
-            categories={categories}
-            completedItems={completedItems}
-            isLoading={itemsLoading}
-            onComplete={handleComplete}
-            onDelete={handleDelete}
-            onRestore={handleRestore}
-          />
-        </div>
+        <ChatLog messages={messages} isActive={isConnected} />
       </div>
+
+      {/* Collapsible brain board sidebar */}
+      <CollapsibleSidebar
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(v => !v)}
+        itemCount={totalItems}
+      >
+        <BrainBoard
+          categories={categories}
+          completedItems={completedItems}
+          isLoading={itemsLoading}
+          onComplete={handleComplete}
+          onDelete={handleDelete}
+          onRestore={handleRestore}
+        />
+      </CollapsibleSidebar>
+
+      {/* Blob buddy corner companion */}
+      <BlobBuddy
+        fuelLevel={fuelLevel}
+        isListening={isListening}
+        isThinking={isThinking}
+        isBreathing={showBreathe}
+        isConnected={isConnected}
+        sidebarOpen={sidebarOpen}
+      />
 
       {undoState && (
         <UndoToast

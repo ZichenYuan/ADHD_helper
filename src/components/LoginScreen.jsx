@@ -23,6 +23,45 @@ export default function LoginScreen() {
   return (
     <div className="login-screen">
       <div className="login-card">
+        {/* Waving blob buddy hero */}
+        <div className="login-blob-hero">
+          <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="loginBlobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#E8927C" />
+                <stop offset="100%" stopColor="#B8A9D4" />
+              </linearGradient>
+            </defs>
+            {/* Main body */}
+            <path
+              className="login-blob-body"
+              d="M70 20C95 18 115 35 118 58C121 80 110 105 85 115C65 122 40 118 28 100C16 82 18 50 35 32C48 20 60 19 70 20Z"
+              fill="url(#loginBlobGrad)"
+            />
+            {/* Waving arm */}
+            <path
+              className="login-blob-arm"
+              d="M112 52C120 42 130 38 132 28C133 23 128 22 126 27C124 32 122 36 118 42"
+              stroke="url(#loginBlobGrad)"
+              strokeWidth="7"
+              strokeLinecap="round"
+              fill="none"
+            />
+            {/* Left eye */}
+            <circle cx="55" cy="60" r="4.5" fill="#5D4E43" />
+            {/* Right eye */}
+            <circle cx="82" cy="58" r="4.5" fill="#5D4E43" />
+            {/* Eye sparkles */}
+            <circle cx="56.5" cy="58.5" r="1.2" fill="white" />
+            <circle cx="83.5" cy="56.5" r="1.2" fill="white" />
+            {/* Smile */}
+            <path d="M58 76C63 84 78 84 83 76" stroke="#5D4E43" strokeWidth="3" strokeLinecap="round" fill="none" />
+            {/* Cheek blush */}
+            <circle cx="48" cy="74" r="6" fill="#E8927C" opacity="0.25" />
+            <circle cx="90" cy="72" r="6" fill="#E8927C" opacity="0.25" />
+          </svg>
+        </div>
+
         <h1 className="login-title">brain dump</h1>
         <p className="login-subtitle">built by ADHD, for your ADHD brain</p>
 
