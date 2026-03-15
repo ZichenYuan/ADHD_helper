@@ -473,7 +473,11 @@ export default function useVoiceSession(language = 'en') {
       switch (msg.type) {
         case 'transcription':
           if (msg.role === 'ai') {
-            currentAiTranscript.current += msg.text
+            if (msg.finished) {
+              currentAiTranscript.current = msg.text
+            } else {
+              currentAiTranscript.current += msg.text
+            }
             const clean = cleanTranscript(currentAiTranscript.current, langConfig.allowedRange)
             if (clean) {
               if (!hasAiMessage.current) {

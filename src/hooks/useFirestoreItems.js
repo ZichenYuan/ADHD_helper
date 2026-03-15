@@ -222,3 +222,52 @@ export async function saveLastFuelLevel(uid, fuelLevel) {
   const profileRef = doc(db, 'users', uid)
   await setDoc(profileRef, { preferences: { lastFuelLevel: fuelLevel } }, { merge: true })
 }
+
+/**
+ * Saves digest email preferences to the user profile.
+ * @param {string} uid
+ * @param {{ digestFrequency?: string, digestDay?: string, digestHour?: number }} prefs
+ */
+export async function saveDigestPreferences(uid, prefs) {
+  if (!db || !uid) return
+  const profileRef = doc(db, 'users', uid)
+  await setDoc(profileRef, { preferences: prefs }, { merge: true })
+}
+
+/**
+ * Hook that subscribes to the user's digest preferences in real-time.
+ * Returns { digestFrequency, digestDay, digestHour, loading }
+ */
+export function useDigestPreferences(uid) {
+  const [prefs, setPrefs] = useState({
+    digestFrequency: 'daily',
+    digestDay: 'monday',
+    digestHour: 9,
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!db || !uid) {
+      setLoading(false)
+      return
+    }
+
+    const profileRef = doc(db, 'users', uid)
+    const unsub = onSnapshot(profileRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data()
+        const p = data.preferences || {}
+        setPrefs({
+          digestFrequency: p.digestFrequency || 'daily',
+          digestDay: p.digestDay || 'monday',
+          digestHour: p.digestHour ?? 9,
+        })
+      }
+      setLoading(false)
+    })
+
+    return unsub
+  }, [uid])
+
+  return { ...prefs, loading }
+}

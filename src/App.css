@@ -1808,6 +1808,72 @@
   background: rgba(192, 57, 43, 0.06) !important;
 }
 
+/* ===== Digest Settings ===== */
+
+.settings-popover__section-label {
+  padding: 6px 14px 2px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--bark);
+  opacity: 0.6;
+  letter-spacing: 0.03em;
+}
+
+.digest-freq-row {
+  display: flex;
+  gap: 4px;
+  padding: 4px 10px;
+}
+
+.digest-freq-btn {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid rgba(93, 78, 67, 0.1);
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--bark);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.digest-freq-btn:hover {
+  background: rgba(184, 169, 212, 0.1);
+}
+
+.digest-freq-btn--active {
+  background: rgba(184, 169, 212, 0.22);
+  border-color: rgba(184, 169, 212, 0.4);
+  font-weight: 600;
+  color: var(--bark-deep);
+}
+
+.digest-options {
+  display: flex;
+  gap: 6px;
+  padding: 2px 10px 4px;
+}
+
+.digest-select {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid rgba(93, 78, 67, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--bark);
+  cursor: pointer;
+  outline: none;
+  appearance: auto;
+}
+
+.digest-select:focus {
+  border-color: rgba(184, 169, 212, 0.5);
+}
+
 /* ===== Undo Toast ===== */
 .undo-toast {
   position: fixed;

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import { isFirebaseConfigured } from './firebase'
-import useFirestoreItems, { ensureUserProfile, saveLastFuelLevel } from './hooks/useFirestoreItems'
+import useFirestoreItems, { ensureUserProfile, saveLastFuelLevel, useDigestPreferences } from './hooks/useFirestoreItems'
 import BackgroundBlobs from './components/BackgroundBlobs'
 import BlobBuddy from './components/BlobBuddy'
 import BreatheOverlay from './components/BreatheOverlay'
@@ -23,6 +23,9 @@ function App() {
   const [showBreathe, setShowBreathe] = useState(false)
   const [undoState, setUndoState] = useState(null) // { message, undoFn }
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Digest preferences (for settings UI)
+  const digestPrefs = useDigestPreferences(user?.uid)
 
   // Firestore-backed board items
   const {
@@ -168,7 +171,7 @@ function App() {
     <div className={`app ${isConnected ? 'app--session' : ''}`}>
       {showBreathe && <BreatheOverlay onClose={() => setShowBreathe(false)} />}
       <BackgroundBlobs />
-      <LanguageSelector value={language} onChange={setLanguage} disabled={isConnected} user={user} />
+      <LanguageSelector value={language} onChange={setLanguage} disabled={isConnected} user={user} digestPrefs={digestPrefs} />
 
       <div className="app-content">
         <FuelGauge value={fuelLevel} onChange={setFuelLevel} />

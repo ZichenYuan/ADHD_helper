@@ -178,6 +178,9 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive()
 
+            if data.get("type") == "websocket.disconnect":
+                break
+
             # ── Binary audio frame ──
             if "bytes" in data:
                 if live_queue:
